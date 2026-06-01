@@ -27,11 +27,14 @@ export interface Settings {
   reminderInterval: ReminderInterval;
   /** Only meaningful when reminderInterval === "custom". */
   customDays?: number;
+  /** Whether local-notification reminders are scheduled (requires permission). */
+  remindersEnabled: boolean;
   /** Remembered choice for the "By state of life" examination tab. */
   stateOfLife?: StateOfLife;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
   reminderInterval: "monthly",
+  remindersEnabled: false,
   stateOfLife: "single_man",
 };

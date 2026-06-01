@@ -1,8 +1,16 @@
 "use client";
 
+import { useEffect, useState } from "react";
+import Link from "next/link";
 import { useSettings } from "@/lib/useSettings";
 import { useConfessions } from "@/lib/useConfessions";
 import { clearAll } from "@/lib/storage";
+import {
+  reminderPermission,
+  requestReminderPermission,
+  syncReminder,
+  type PermState,
+} from "@/lib/reminders";
 import ConfirmAction from "@/components/ConfirmAction";
 import type { ReminderInterval } from "@/lib/types";
 
@@ -16,6 +24,48 @@ const INTERVALS: { value: ReminderInterval; label: string }[] = [
 export default function SettingsPage() {
   const { settings, update } = useSettings();
   const { count } = useConfessions();
+
+  const [perm, setPerm] = useState<PermState>("prompt");
+  const [busy, setBusy] = useState(false);
+
+  // Load the current permission state and self-heal the schedule on mount.
+  useEffect(() => {
+    reminderPermission().then(setPerm);
+    void syncReminder();
+  }, []);
+
+  const remindersOn = settings.remindersEnabled;
+
+  // Changing the cadence reschedules the existing reminder in place.
+  const setInterval = (patch: Partial<typeof settings>) => {
+    update(patch);
+    if (remindersOn) void syncReminder();
+  };
+
+  const toggleReminders = async () => {
+    if (busy) return;
+    if (remindersOn) {
+      update({ remindersEnabled: false });
+      await syncReminder();
+      return;
+    }
+    setBusy(true);
+    const result = await requestReminderPermission();
+    setPerm(result);
+    if (result === "granted") {
+      update({ remindersEnabled: true });
+      await syncReminder();
+    }
+    setBusy(false);
+  };
+
+  const reminderHint = !remindersOn
+    ? perm === "denied"
+      ? "Notifications are turned off for Reconcile. Enable them in your device Settings, then turn this on."
+      : "Get a gentle, private nudge when it's time to return. Nothing is sent anywhere — the reminder is scheduled on this device."
+    : perm === "unsupported"
+      ? "Reminders are scheduled. They fire reliably in the installed app; in a browser tab they only fire while it's open."
+      : "On. You'll be nudged around your next confession, based on the cadence above.";
 
   return (
     <div className="fade-in">
@@ -36,7 +86,7 @@ export default function SettingsPage() {
               <button
                 key={opt.value}
                 type="button"
-                onClick={() => update({ reminderInterval: opt.value })}
+                onClick={() => setInterval({ reminderInterval: opt.value })}
                 className="rounded-2xl border px-4 py-3.5 text-[0.92rem] font-medium transition-all"
                 style={{
                   borderColor: active ? "var(--gold-muted)" : "var(--border)",
@@ -59,7 +109,7 @@ export default function SettingsPage() {
               max={365}
               value={settings.customDays ?? 14}
               onChange={(e) =>
-                update({
+                setInterval({
                   customDays: Math.max(1, Math.min(365, Number(e.target.value) || 1)),
                 })
               }
@@ -69,9 +119,28 @@ export default function SettingsPage() {
           </div>
         )}
 
+        {/* Reminder toggle */}
+        <div className="mt-5 flex items-center justify-between rounded-2xl border border-border bg-surface px-5 py-4">
+          <span className="text-[0.92rem] text-text-soft">Remind me</span>
+          <button
+            type="button"
+            role="switch"
+            aria-checked={remindersOn}
+            aria-label="Enable reminders"
+            disabled={busy}
+            onClick={toggleReminders}
+            className="relative h-7 w-12 rounded-full transition-colors disabled:opacity-60"
+            style={{ backgroundColor: remindersOn ? "var(--gold)" : "var(--border)" }}
+          >
+            <span
+              className="absolute top-1 h-5 w-5 rounded-full bg-[var(--bg)] transition-all"
+              style={{ left: remindersOn ? "1.5rem" : "0.25rem" }}
+            />
+          </button>
+        </div>
+
         <p className="mt-3 text-[0.82rem] leading-relaxed text-text-dim">
-          Push notifications aren’t implemented yet — this interval is saved for
-          when reminders arrive in a later version.
+          {reminderHint}
         </p>
       </section>
 
@@ -92,7 +161,10 @@ export default function SettingsPage() {
         </div>
         <p className="mt-3 text-[0.82rem] leading-relaxed text-text-dim">
           Nothing leaves your phone. Reconcile has no account and no server — your
-          history lives only in this app’s local storage.
+          history lives only in this app’s local storage.{" "}
+          <Link href="/privacy" className="text-gold underline-offset-2 hover:underline">
+            Privacy policy
+          </Link>
         </p>
 
         <div className="mt-5">
