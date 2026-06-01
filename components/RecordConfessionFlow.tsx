@@ -111,7 +111,7 @@ export default function RecordConfessionFlow() {
               onChange={(e) => setNote(e.target.value)}
               rows={2}
               placeholder="Anything you want to remember…"
-              className="mt-2 w-full resize-none rounded-xl border border-border bg-[var(--bg)] px-4 py-3 text-[0.92rem] text-text placeholder:text-text-dim/70 focus:border-gold-muted focus:outline-none"
+              className="mt-2 w-full resize-none rounded-xl border border-border bg-[var(--bg)] px-4 py-3 text-base text-text placeholder:text-text-dim/70 focus:border-gold-muted focus:outline-none"
             />
             <button
               type="button"

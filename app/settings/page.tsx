@@ -55,7 +55,7 @@ export default function SettingsPage() {
   const customUnit = settings.customUnit ?? "weeks";
 
   // Changing the cadence reschedules the existing reminder in place.
-  const setInterval = (patch: Partial<typeof settings>) => {
+  const changeCadence = (patch: Partial<typeof settings>) => {
     update(patch);
     if (remindersOn) void syncReminder();
   };
@@ -165,7 +165,7 @@ export default function SettingsPage() {
               <button
                 key={opt.value}
                 type="button"
-                onClick={() => setInterval({ reminderInterval: opt.value })}
+                onClick={() => changeCadence({ reminderInterval: opt.value })}
                 className="rounded-2xl border px-4 py-3.5 text-[0.92rem] font-medium transition-all"
                 style={{
                   borderColor: active ? "var(--gold-muted)" : "var(--border)",
@@ -189,14 +189,14 @@ export default function SettingsPage() {
                 max={MAX_BY_UNIT[customUnit]}
                 value={customCount}
                 onChange={(e) =>
-                  setInterval({
+                  changeCadence({
                     customCount: Math.max(
                       1,
                       Math.min(MAX_BY_UNIT[customUnit], Number(e.target.value) || 1),
                     ),
                   })
                 }
-                className="w-20 rounded-xl border border-border bg-[var(--bg)] px-3 py-2 text-center text-[0.95rem] text-text focus:border-gold-muted focus:outline-none"
+                className="w-20 rounded-xl border border-border bg-[var(--bg)] px-3 py-2 text-center text-base text-text focus:border-gold-muted focus:outline-none"
               />
             </div>
             <div className="mt-3">
@@ -206,7 +206,7 @@ export default function SettingsPage() {
                 onChange={(unit) =>
                   // Switching units keeps the number but clamps it to the new
                   // unit's sensible ceiling (e.g. 60 days → 12 months).
-                  setInterval({
+                  changeCadence({
                     customUnit: unit,
                     customCount: Math.min(customCount, MAX_BY_UNIT[unit]),
                   })

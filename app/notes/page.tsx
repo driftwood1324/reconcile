@@ -29,7 +29,7 @@ export default function NotesPage() {
           onChange={(e) => setDraft(e.target.value)}
           rows={3}
           placeholder="Something to confess, a resolution, a prayer intention…"
-          className="w-full resize-none rounded-xl border border-border bg-[var(--bg)] px-4 py-3 text-[0.95rem] leading-relaxed text-text placeholder:text-text-dim/70 focus:border-gold-muted focus:outline-none"
+          className="w-full resize-none rounded-xl border border-border bg-[var(--bg)] px-4 py-3 text-base leading-relaxed text-text placeholder:text-text-dim/70 focus:border-gold-muted focus:outline-none"
         />
         <button
           type="button"

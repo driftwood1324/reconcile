@@ -2,13 +2,19 @@
 
 import { useConfessions } from "@/lib/useConfessions";
 import { elapsedSince } from "@/lib/time";
+import { syncReminder } from "@/lib/reminders";
 import RecordConfessionFlow from "@/components/RecordConfessionFlow";
 import ConfessionLog from "@/components/ConfessionLog";
 import ProfileMenu from "@/components/ProfileMenu";
 
 export default function HomePage() {
-  const { confessions, lastDate } = useConfessions();
+  const { confessions, lastDate, remove } = useConfessions();
   const elapsed = lastDate ? elapsedSince(lastDate) : null;
+
+  const handleDelete = (id: string) => {
+    remove(id);
+    void syncReminder(); // the next reminder may key off the entry just removed
+  };
 
   return (
     <div className="fade-in">
@@ -49,7 +55,7 @@ export default function HomePage() {
         <RecordConfessionFlow />
       </div>
 
-      <ConfessionLog items={confessions} />
+      <ConfessionLog items={confessions} onDelete={handleDelete} />
 
       <footer className="mt-12 mb-2 text-center">
         <p className="font-serif text-[1.15rem] italic leading-relaxed text-gold-muted">

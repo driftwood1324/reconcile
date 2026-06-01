@@ -28,6 +28,7 @@
 
   --color-gold: var(--gold);
   --color-gold-muted: var(--gold-muted);
+  --color-gold-soft: var(--gold-soft);
 
   --color-text: var(--text);
   --color-text-soft: var(--text-soft);
@@ -112,9 +113,20 @@ body {
   40%, 80% { transform: translateX(7px); }
 }
 
+/* Visible keyboard-focus ring. Buttons/links across the app rely on colour
+   alone for state; this restores a clear focus indicator for keyboard users.
+   Inputs keep their own focus border (they set outline-none intentionally). */
+:focus-visible {
+  outline: 2px solid var(--gold-muted);
+  outline-offset: 2px;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .fade-rise,
   .fade-in {
     animation: none;
+  }
+  [style*="pin-shake"] {
+    animation: none !important;
   }
 }

@@ -163,7 +163,7 @@ export default function ExaminePage() {
             </svg>
           </button>
           {showList && (
-            <div className="fade-in border-t border-[var(--gold-muted)]/40 px-5 py-4">
+            <div className="fade-in border-t border-[var(--border-strong)] px-5 py-4">
               <ul className="flex flex-col gap-2.5">
                 {flags.map((f) => (
                   <li key={f.key} className="flex items-start gap-3 text-[0.9rem] leading-relaxed text-text-soft">

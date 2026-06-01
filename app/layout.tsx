@@ -31,8 +31,8 @@ export const viewport: Viewport = {
   themeColor: "#080d1a",
   width: "device-width",
   initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
+  // Pinch-zoom is left enabled (WCAG 1.4.4) — important for a wide audience.
+  // Editable fields use a ≥16px font so iOS doesn't auto-zoom on focus.
   viewportFit: "cover",
 };
 

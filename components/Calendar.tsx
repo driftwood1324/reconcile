@@ -120,6 +120,13 @@ export default function Calendar({
               key={i}
               type="button"
               disabled={disabled}
+              aria-pressed={isSelected}
+              aria-label={date.toLocaleDateString(undefined, {
+                weekday: "long",
+                month: "long",
+                day: "numeric",
+                year: "numeric",
+              })}
               onClick={() => onSelect(date)}
               className="relative flex aspect-square items-center justify-center rounded-full text-[0.9rem] transition-all disabled:cursor-not-allowed"
               style={{

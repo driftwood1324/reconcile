@@ -20,7 +20,11 @@ export default function LockGate({ children }: { children: React.ReactNode }) {
 
   return (
     <>
-      {children}
+      {/* While locked, the app is held inert so it can't be tabbed into or read
+          by assistive tech behind the lock screen. */}
+      <div inert={locked} aria-hidden={locked || undefined}>
+        {children}
+      </div>
       {locked && (
         <LockScreen
           onUnlock={() => {

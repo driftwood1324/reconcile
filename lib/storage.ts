@@ -90,6 +90,10 @@ export function addConfession(input: { date: string; note?: string }): Confessio
   return entry;
 }
 
+export function deleteConfession(id: string): void {
+  write(KEYS.confessions, getConfessions().filter((c) => c.id !== id));
+}
+
 // ── Notes ────────────────────────────────────────────────────────────────────
 
 const EMPTY_NOTES: Note[] = [];

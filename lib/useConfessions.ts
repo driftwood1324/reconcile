@@ -2,7 +2,7 @@
 
 import { useCallback, useSyncExternalStore } from "react";
 import type { Confession } from "./types";
-import { addConfession, getConfessions, subscribe } from "./storage";
+import { addConfession, deleteConfession, getConfessions, subscribe } from "./storage";
 
 const EMPTY: Confession[] = [];
 
@@ -25,6 +25,8 @@ export function useConfessions() {
     });
   }, []);
 
+  const remove = useCallback((id: string) => deleteConfession(id), []);
+
   const last = confessions[0] ?? null;
 
   return {
@@ -33,5 +35,6 @@ export function useConfessions() {
     last,
     lastDate: last?.date ?? null,
     record,
+    remove,
   };
 }
