@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useConfessions } from "@/lib/useConfessions";
 import { syncReminder } from "@/lib/reminders";
+import { clearFlags } from "@/lib/storage";
 import { formatDate } from "@/lib/time";
 import Calendar from "./Calendar";
 import Cross from "./Cross";
@@ -31,6 +32,7 @@ export default function RecordConfessionFlow() {
 
   const confirmToday = () => {
     record({ note });
+    clearFlags(); // the examination list has now been brought to confession
     void syncReminder(); // push the next reminder out from today
     setStage("done");
   };

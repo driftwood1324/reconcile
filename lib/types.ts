@@ -14,6 +14,13 @@ export interface Note {
   createdAt: string;
 }
 
+export interface FlaggedItem {
+  /** Stable key `${examId}:${sectionId}:${index}` identifying the question. */
+  key: string;
+  /** The question text, stored so the "bring to confession" list is self-contained. */
+  text: string;
+}
+
 export type ReminderInterval = "weekly" | "biweekly" | "monthly" | "custom";
 
 /** Unit a custom reminder cadence is expressed in. */

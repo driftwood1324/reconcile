@@ -1,4 +1,4 @@
-import type { Confession, Note, Settings } from "./types";
+import type { Confession, FlaggedItem, Note, Settings } from "./types";
 import { DEFAULT_SETTINGS } from "./types";
 
 /**
@@ -12,6 +12,7 @@ const KEYS = {
   confessions: "reconcile.confessions",
   settings: "reconcile.settings",
   notes: "reconcile.notes",
+  flags: "reconcile.flags",
 } as const;
 
 const CHANGE_EVENT = "reconcile:change";
@@ -36,7 +37,8 @@ export function subscribe(listener: () => void): () => void {
     if (
       e.key === KEYS.confessions ||
       e.key === KEYS.settings ||
-      e.key === KEYS.notes
+      e.key === KEYS.notes ||
+      e.key === KEYS.flags
     )
       listener();
   };
@@ -125,6 +127,47 @@ export function deleteNote(id: string): void {
   write(KEYS.notes, getNotes().filter((n) => n.id !== id));
 }
 
+// ── Examination flags ("bring to confession" list) ───────────────────────────
+
+const EMPTY_FLAGS: FlaggedItem[] = [];
+let flagsCache: { raw: string | null; value: FlaggedItem[] } = {
+  raw: null,
+  value: EMPTY_FLAGS,
+};
+
+export function getFlags(): FlaggedItem[] {
+  if (!isBrowser()) return EMPTY_FLAGS;
+  const raw = window.localStorage.getItem(KEYS.flags);
+  if (raw === flagsCache.raw) return flagsCache.value;
+
+  let value: FlaggedItem[] = [];
+  try {
+    value = raw ? (JSON.parse(raw) as FlaggedItem[]) : [];
+  } catch {
+    value = [];
+  }
+  flagsCache = { raw, value };
+  return value;
+}
+
+/** Add the item if its key is absent, otherwise remove it. */
+export function toggleFlag(item: FlaggedItem): void {
+  const current = getFlags();
+  const next = current.some((f) => f.key === item.key)
+    ? current.filter((f) => f.key !== item.key)
+    : [...current, item];
+  write(KEYS.flags, next);
+}
+
+export function removeFlag(key: string): void {
+  write(KEYS.flags, getFlags().filter((f) => f.key !== key));
+}
+
+export function clearFlags(): void {
+  if (getFlags().length === 0) return;
+  write(KEYS.flags, []);
+}
+
 // ── Settings ─────────────────────────────────────────────────────────────────
 
 let settingsCache: { raw: string | null; value: Settings } = {
@@ -163,6 +206,7 @@ export function clearAll(): void {
   window.localStorage.removeItem(KEYS.confessions);
   window.localStorage.removeItem(KEYS.settings);
   window.localStorage.removeItem(KEYS.notes);
+  window.localStorage.removeItem(KEYS.flags);
   window.dispatchEvent(new CustomEvent(CHANGE_EVENT, { detail: { key: "*" } }));
 }
 
