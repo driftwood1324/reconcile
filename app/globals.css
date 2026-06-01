@@ -1,0 +1,114 @@
+@import "tailwindcss";
+
+/* ── Design tokens ─────────────────────────────────────────────────────────
+   Deep-navy dark mode with a single gold accent. Calm/Headspace restraint:
+   quiet surfaces, hairline borders, slow easing. No stained glass, no clip art. */
+:root {
+  --bg: #080d1a; /* base */
+  --surface: #0d1426; /* raised card */
+  --surface-2: #111a30; /* nested / pressed */
+  --border: #1c2740; /* hairline */
+  --border-strong: #283655;
+
+  --gold: #c9a96e;
+  --gold-muted: #a98f5d;
+  --gold-soft: rgba(201, 169, 110, 0.12);
+
+  --text: #eef1f7;
+  --text-soft: #c8d0e0;
+  --text-dim: #7f8aa3;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+
+  --color-gold: var(--gold);
+  --color-gold-muted: var(--gold-muted);
+
+  --color-text: var(--text);
+  --color-text-soft: var(--text-soft);
+  --color-text-dim: var(--text-dim);
+
+  --font-serif: var(--font-lora), Georgia, "Times New Roman", serif;
+  --font-sans: var(--font-inter), system-ui, -apple-system, sans-serif;
+
+  /* App is centered in a phone-width column on larger screens. */
+  --container-app: 30rem;
+}
+
+html {
+  height: 100%;
+  /* Prevent iOS text auto-resizing in the WebView. */
+  -webkit-text-size-adjust: 100%;
+  background: var(--bg);
+}
+
+body {
+  min-height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  /* Disable the grey tap flash so taps feel native. */
+  -webkit-tap-highlight-color: transparent;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  /* Don't let the page rubber-band horizontally. */
+  overscroll-behavior-y: none;
+}
+
+/* Respect the iPhone notch / home indicator via safe-area insets. */
+.app-shell {
+  width: 100%;
+  max-width: var(--container-app);
+  margin-inline: auto;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-main {
+  flex: 1;
+  padding-left: max(1.25rem, env(safe-area-inset-left));
+  padding-right: max(1.25rem, env(safe-area-inset-right));
+  padding-top: max(1.5rem, env(safe-area-inset-top));
+  /* Leave room for the fixed bottom nav. */
+  padding-bottom: calc(5.5rem + env(safe-area-inset-bottom));
+}
+
+/* Subtle entrance used for confirmation states. */
+@keyframes fade-rise {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.fade-rise {
+  animation: fade-rise 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+.fade-in {
+  animation: fade-in 0.4s ease both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fade-rise,
+  .fade-in {
+    animation: none;
+  }
+}
