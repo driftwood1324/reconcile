@@ -106,6 +106,12 @@ body {
   animation: fade-in 0.4s ease both;
 }
 
+@keyframes pin-shake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-7px); }
+  40%, 80% { transform: translateX(7px); }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .fade-rise,
   .fade-in {

@@ -13,7 +13,19 @@ import {
 } from "@/lib/reminders";
 import ConfirmAction from "@/components/ConfirmAction";
 import PillToggle from "@/components/PillToggle";
+import PinPad from "@/components/PinPad";
+import Cross from "@/components/Cross";
+import {
+  disableLock,
+  isLockEnabled,
+  lockNow,
+  setPin,
+  subscribeLock,
+  verifyPin,
+} from "@/lib/lock";
 import type { CustomUnit, ReminderInterval } from "@/lib/types";
+
+type PinFlow = "set" | "confirm" | "disable";
 
 const INTERVALS: { value: ReminderInterval; label: string }[] = [
   { value: "weekly", label: "Weekly" },
@@ -64,6 +76,67 @@ export default function SettingsPage() {
     }
     setBusy(false);
   };
+
+  // ── Privacy lock ────────────────────────────────────────────────────────────
+  const [lockOn, setLockOn] = useState(false);
+  const [flow, setFlow] = useState<PinFlow | null>(null);
+  const [firstPin, setFirstPin] = useState("");
+  const [pinError, setPinError] = useState(0);
+
+  useEffect(() => {
+    const sync = () => setLockOn(isLockEnabled());
+    sync();
+    return subscribeLock(sync);
+  }, []);
+
+  const cancelFlow = () => {
+    setFlow(null);
+    setFirstPin("");
+    setPinError(0);
+  };
+
+  const toggleLock = () => {
+    setPinError(0);
+    setFirstPin("");
+    setFlow(lockOn ? "disable" : "set");
+  };
+
+  const onPinComplete = async (pin: string) => {
+    if (flow === "set") {
+      setFirstPin(pin);
+      setPinError(0);
+      setFlow("confirm");
+    } else if (flow === "confirm") {
+      if (pin === firstPin) {
+        await setPin(pin);
+        cancelFlow();
+      } else {
+        setPinError((n) => n + 1);
+        setFirstPin("");
+        setFlow("set");
+      }
+    } else if (flow === "disable") {
+      if (await verifyPin(pin)) {
+        disableLock();
+        cancelFlow();
+      } else {
+        setPinError((n) => n + 1);
+      }
+    }
+  };
+
+  const pinTitle =
+    flow === "confirm" ? "Confirm PIN" : flow === "disable" ? "Enter PIN" : "Set a PIN";
+  const pinSubtitle =
+    flow === "disable"
+      ? pinError
+        ? "Incorrect PIN — try again"
+        : "Enter your PIN to turn off the lock"
+      : flow === "confirm"
+        ? "Re-enter to confirm"
+        : pinError
+          ? "PINs didn't match — choose again"
+          : "Choose a 4-digit PIN";
 
   const reminderHint = !remindersOn
     ? perm === "denied"
@@ -173,6 +246,44 @@ export default function SettingsPage() {
         </p>
       </section>
 
+      {/* Privacy lock */}
+      <section className="mt-10">
+        <h2 className="text-[0.78rem] font-semibold uppercase tracking-[0.14em] text-text-dim">
+          Privacy lock
+        </h2>
+        <div className="mt-4 flex items-center justify-between rounded-2xl border border-border bg-surface px-5 py-4">
+          <span className="text-[0.92rem] text-text-soft">Require a PIN</span>
+          <button
+            type="button"
+            role="switch"
+            aria-checked={lockOn}
+            aria-label="Require a PIN to open the app"
+            onClick={toggleLock}
+            className="relative h-7 w-12 rounded-full transition-colors"
+            style={{ backgroundColor: lockOn ? "var(--gold)" : "var(--border)" }}
+          >
+            <span
+              className="absolute top-1 h-5 w-5 rounded-full bg-[var(--bg)] transition-all"
+              style={{ left: lockOn ? "1.5rem" : "0.25rem" }}
+            />
+          </button>
+        </div>
+        <p className="mt-3 text-[0.82rem] leading-relaxed text-text-dim">
+          {lockOn
+            ? "A 4-digit PIN is asked for each time you open Reconcile."
+            : "Ask for a 4-digit PIN when Reconcile opens — so your history stays private if someone else picks up your phone."}
+        </p>
+        {lockOn && (
+          <button
+            type="button"
+            onClick={lockNow}
+            className="mt-3 text-[0.85rem] text-text-soft underline-offset-2 transition-colors hover:text-gold"
+          >
+            Lock now
+          </button>
+        )}
+      </section>
+
       {/* Data */}
       <section className="mt-10">
         <h2 className="text-[0.78rem] font-semibold uppercase tracking-[0.14em] text-text-dim">
@@ -205,6 +316,27 @@ export default function SettingsPage() {
           />
         </div>
       </section>
+
+      {/* PIN setup / disable overlay */}
+      {flow && (
+        <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-[var(--bg)] px-6">
+          <button
+            type="button"
+            onClick={cancelFlow}
+            className="absolute right-6 top-6 text-[0.9rem] text-text-dim transition-colors hover:text-gold"
+          >
+            Cancel
+          </button>
+          <Cross size={36} className="mb-2 text-gold-muted" />
+          <PinPad
+            key={`${flow}:${pinError}`}
+            title={pinTitle}
+            subtitle={pinSubtitle}
+            error={pinError}
+            onComplete={onPinComplete}
+          />
+        </div>
+      )}
     </div>
   );
 }
