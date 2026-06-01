@@ -139,7 +139,12 @@ export function getSettings(): Settings {
 
   let value = DEFAULT_SETTINGS;
   try {
-    value = { ...DEFAULT_SETTINGS, ...(raw ? (JSON.parse(raw) as Partial<Settings>) : {}) };
+    const parsed = raw ? (JSON.parse(raw) as Partial<Settings> & { customDays?: number }) : {};
+    value = { ...DEFAULT_SETTINGS, ...parsed };
+    // Migrate the pre-units custom cadence (a bare day count) to count + unit.
+    if (typeof parsed.customDays === "number" && parsed.customCount == null) {
+      value = { ...value, customCount: parsed.customDays, customUnit: "days" };
+    }
   } catch {
     value = DEFAULT_SETTINGS;
   }

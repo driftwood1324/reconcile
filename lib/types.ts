@@ -16,6 +16,9 @@ export interface Note {
 
 export type ReminderInterval = "weekly" | "biweekly" | "monthly" | "custom";
 
+/** Unit a custom reminder cadence is expressed in. */
+export type CustomUnit = "days" | "weeks" | "months";
+
 export type StateOfLife =
   | "single_man"
   | "married_man"
@@ -25,8 +28,10 @@ export type StateOfLife =
 
 export interface Settings {
   reminderInterval: ReminderInterval;
-  /** Only meaningful when reminderInterval === "custom". */
-  customDays?: number;
+  /** Count for a custom cadence (paired with customUnit). Only meaningful when
+   *  reminderInterval === "custom". */
+  customCount?: number;
+  customUnit?: CustomUnit;
   /** Whether local-notification reminders are scheduled (requires permission). */
   remindersEnabled: boolean;
   /** Remembered choice for the "By state of life" examination tab. */
@@ -35,6 +40,8 @@ export interface Settings {
 
 export const DEFAULT_SETTINGS: Settings = {
   reminderInterval: "monthly",
+  customCount: 2,
+  customUnit: "weeks",
   remindersEnabled: false,
   stateOfLife: "single_man",
 };

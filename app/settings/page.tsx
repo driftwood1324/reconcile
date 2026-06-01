@@ -12,7 +12,8 @@ import {
   type PermState,
 } from "@/lib/reminders";
 import ConfirmAction from "@/components/ConfirmAction";
-import type { ReminderInterval } from "@/lib/types";
+import PillToggle from "@/components/PillToggle";
+import type { CustomUnit, ReminderInterval } from "@/lib/types";
 
 const INTERVALS: { value: ReminderInterval; label: string }[] = [
   { value: "weekly", label: "Weekly" },
@@ -20,6 +21,9 @@ const INTERVALS: { value: ReminderInterval; label: string }[] = [
   { value: "monthly", label: "Monthly" },
   { value: "custom", label: "Custom" },
 ];
+
+// Sensible ceilings per unit so the custom cadence stays within a year.
+const MAX_BY_UNIT: Record<CustomUnit, number> = { days: 365, weeks: 52, months: 12 };
 
 export default function SettingsPage() {
   const { settings, update } = useSettings();
@@ -35,6 +39,8 @@ export default function SettingsPage() {
   }, []);
 
   const remindersOn = settings.remindersEnabled;
+  const customCount = settings.customCount ?? 2;
+  const customUnit = settings.customUnit ?? "weeks";
 
   // Changing the cadence reschedules the existing reminder in place.
   const setInterval = (patch: Partial<typeof settings>) => {
@@ -101,21 +107,44 @@ export default function SettingsPage() {
         </div>
 
         {settings.reminderInterval === "custom" && (
-          <div className="fade-in mt-3 flex items-center gap-3 rounded-2xl border border-border bg-surface px-5 py-4">
-            <span className="text-[0.92rem] text-text-soft">Every</span>
-            <input
-              type="number"
-              min={1}
-              max={365}
-              value={settings.customDays ?? 14}
-              onChange={(e) =>
-                setInterval({
-                  customDays: Math.max(1, Math.min(365, Number(e.target.value) || 1)),
-                })
-              }
-              className="w-20 rounded-xl border border-border bg-[var(--bg)] px-3 py-2 text-center text-[0.95rem] text-text focus:border-gold-muted focus:outline-none"
-            />
-            <span className="text-[0.92rem] text-text-soft">days</span>
+          <div className="fade-in mt-3 rounded-2xl border border-border bg-surface px-5 py-4">
+            <div className="flex items-center gap-3">
+              <span className="text-[0.92rem] text-text-soft">Every</span>
+              <input
+                type="number"
+                min={1}
+                max={MAX_BY_UNIT[customUnit]}
+                value={customCount}
+                onChange={(e) =>
+                  setInterval({
+                    customCount: Math.max(
+                      1,
+                      Math.min(MAX_BY_UNIT[customUnit], Number(e.target.value) || 1),
+                    ),
+                  })
+                }
+                className="w-20 rounded-xl border border-border bg-[var(--bg)] px-3 py-2 text-center text-[0.95rem] text-text focus:border-gold-muted focus:outline-none"
+              />
+            </div>
+            <div className="mt-3">
+              <PillToggle<CustomUnit>
+                ariaLabel="Custom reminder unit"
+                value={customUnit}
+                onChange={(unit) =>
+                  // Switching units keeps the number but clamps it to the new
+                  // unit's sensible ceiling (e.g. 60 days → 12 months).
+                  setInterval({
+                    customUnit: unit,
+                    customCount: Math.min(customCount, MAX_BY_UNIT[unit]),
+                  })
+                }
+                options={[
+                  { value: "days", label: "Days" },
+                  { value: "weeks", label: "Weeks" },
+                  { value: "months", label: "Months" },
+                ]}
+              />
+            </div>
           </div>
         )}
 

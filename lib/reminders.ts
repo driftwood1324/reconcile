@@ -8,12 +8,14 @@
  * something it cannot keep. Every call is guarded; failures are non-fatal.
  */
 import { getConfessions, getSettings } from "./storage";
-import type { Settings } from "./types";
+import type { CustomUnit, Settings } from "./types";
 
 // One reminder at a time — reschedule overwrites this fixed id.
 const REMINDER_ID = 1;
 
 export type PermState = "granted" | "denied" | "prompt" | "unsupported";
+
+const UNIT_DAYS: Record<CustomUnit, number> = { days: 1, weeks: 7, months: 30 };
 
 function intervalDays(s: Settings): number {
   switch (s.reminderInterval) {
@@ -23,8 +25,11 @@ function intervalDays(s: Settings): number {
       return 14;
     case "monthly":
       return 30;
-    case "custom":
-      return Math.max(1, Math.min(365, s.customDays ?? 14));
+    case "custom": {
+      const count = Math.max(1, s.customCount ?? 2);
+      const unit = UNIT_DAYS[s.customUnit ?? "weeks"];
+      return Math.max(1, Math.min(365, count * unit));
+    }
   }
 }
 
