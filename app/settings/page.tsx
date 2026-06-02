@@ -325,6 +325,24 @@ export default function SettingsPage() {
         </p>
       </section>
 
+      {/* Display */}
+      <section className="mt-10">
+        <h2 className="text-[0.78rem] font-semibold uppercase tracking-[0.14em] text-text-dim">
+          Text size
+        </h2>
+        <div className="mt-4">
+          <PillToggle
+            ariaLabel="Text size"
+            value={settings.textSize ?? "normal"}
+            onChange={(value) => update({ textSize: value })}
+            options={[
+              { value: "normal", label: "Normal" },
+              { value: "large", label: "Large" },
+            ]}
+          />
+        </div>
+      </section>
+
       {/* Privacy lock */}
       <section className="mt-10">
         <h2 className="text-[0.78rem] font-semibold uppercase tracking-[0.14em] text-text-dim">

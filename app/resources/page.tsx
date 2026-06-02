@@ -18,11 +18,17 @@ import {
   CONFESSION_GUIDE_RETURNING,
   CONFESSION_PHASES,
 } from "@/lib/content/confessionGuide";
+import {
+  SCRUPLES_CLOSE,
+  SCRUPLES_INTRO,
+  SCRUPLES_POINTS,
+} from "@/lib/content/scruples";
 
-type View = "list" | "confession" | "rosary" | "divine-mercy" | "common";
+type View = "list" | "confession" | "scruples" | "rosary" | "divine-mercy" | "common";
 
 const GUIDES: { id: Exclude<View, "list">; title: string; blurb: string }[] = [
   { id: "confession", title: "How to go to Confession", blurb: "The whole sacrament, step by step — especially if it's been a while." },
+  { id: "scruples", title: "A word on scruples", blurb: "Gentle help when fear and guilt overwhelm a tender conscience." },
   { id: "rosary", title: "The Holy Rosary", blurb: "How to pray it, and the four sets of Mysteries." },
   { id: "divine-mercy", title: "Divine Mercy Chaplet", blurb: "Prayed on Rosary beads — a plea for mercy." },
   { id: "common", title: "Common Prayers", blurb: "The prayers every Catholic should know by heart." },
@@ -124,6 +130,26 @@ export default function ResourcesPage() {
             Act of Contrition →
           </Link>
         </div>
+      </div>
+    );
+  }
+
+  if (view === "scruples") {
+    return (
+      <div className="fade-in">
+        <BackBar title="A word on scruples" onBack={back} />
+        <p className="text-[0.92rem] leading-relaxed text-text-soft">{SCRUPLES_INTRO}</p>
+
+        <div className="mt-6 flex flex-col gap-3">
+          {SCRUPLES_POINTS.map((p, i) => (
+            <div key={i} className="rounded-2xl border border-border bg-surface px-5 py-4">
+              <h2 className="font-serif text-[1.08rem] text-gold">{p.heading}</h2>
+              <p className="mt-2 text-[0.92rem] leading-relaxed text-text-soft">{p.body}</p>
+            </div>
+          ))}
+        </div>
+
+        <p className="mt-6 text-[0.82rem] leading-relaxed text-text-dim">{SCRUPLES_CLOSE}</p>
       </div>
     );
   }

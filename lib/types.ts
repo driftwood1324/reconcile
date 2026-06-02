@@ -30,6 +30,9 @@ export type ReminderInterval = "weekly" | "biweekly" | "monthly" | "custom";
 /** Unit a custom reminder cadence is expressed in. */
 export type CustomUnit = "days" | "weeks" | "months";
 
+/** App-wide text scale for readability. */
+export type TextSize = "normal" | "large";
+
 export type StateOfLife =
   | "single_man"
   | "married_man"
@@ -49,6 +52,8 @@ export interface Settings {
   examenReminderEnabled: boolean;
   /** Hour of day (0–23, local) for the examen reminder. */
   examenHour: number;
+  /** App-wide text scale. */
+  textSize: TextSize;
   /** Remembered choice for the "By state of life" examination tab. */
   stateOfLife?: StateOfLife;
 }
@@ -60,5 +65,6 @@ export const DEFAULT_SETTINGS: Settings = {
   remindersEnabled: false,
   examenReminderEnabled: false,
   examenHour: 21,
+  textSize: "normal",
   stateOfLife: "single_man",
 };

@@ -3,6 +3,7 @@ import { Inter, Lora } from "next/font/google";
 import "./globals.css";
 import BottomNav from "@/components/BottomNav";
 import LockGate from "@/components/LockGate";
+import TextScale from "@/components/TextScale";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -42,6 +43,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${inter.variable} ${lora.variable} antialiased`}>
       <body>
+        <TextScale />
         <LockGate>
           <div className="app-shell">
             <main className="app-main">{children}</main>
