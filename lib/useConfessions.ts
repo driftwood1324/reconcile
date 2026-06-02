@@ -2,7 +2,13 @@
 
 import { useCallback, useSyncExternalStore } from "react";
 import type { Confession } from "./types";
-import { addConfession, deleteConfession, getConfessions, subscribe } from "./storage";
+import {
+  addConfession,
+  deleteConfession,
+  getConfessions,
+  subscribe,
+  updateConfession,
+} from "./storage";
 
 const EMPTY: Confession[] = [];
 
@@ -18,14 +24,22 @@ export function useConfessions() {
     () => EMPTY,
   );
 
-  const record = useCallback((opts?: { note?: string; date?: string }) => {
-    return addConfession({
-      date: opts?.date ?? new Date().toISOString(),
-      note: opts?.note,
-    });
-  }, []);
+  const record = useCallback(
+    (opts?: { note?: string; date?: string; penance?: string }) => {
+      return addConfession({
+        date: opts?.date ?? new Date().toISOString(),
+        note: opts?.note,
+        penance: opts?.penance,
+      });
+    },
+    [],
+  );
 
   const remove = useCallback((id: string) => deleteConfession(id), []);
+  const setPenanceDone = useCallback(
+    (id: string, done: boolean) => updateConfession(id, { penanceDone: done }),
+    [],
+  );
 
   const last = confessions[0] ?? null;
 
@@ -36,5 +50,6 @@ export function useConfessions() {
     lastDate: last?.date ?? null,
     record,
     remove,
+    setPenanceDone,
   };
 }

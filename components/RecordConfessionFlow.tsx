@@ -21,17 +21,19 @@ export default function RecordConfessionFlow() {
   const [stage, setStage] = useState<Stage>("idle");
   const [mode, setMode] = useState<Mode>("today");
   const [note, setNote] = useState("");
+  const [penance, setPenance] = useState("");
   const [pickedDate, setPickedDate] = useState<Date | null>(null);
 
   const reset = () => {
     setNote("");
+    setPenance("");
     setPickedDate(null);
     setMode("today");
     setStage("idle");
   };
 
   const confirmToday = () => {
-    record({ note });
+    record({ note, penance });
     clearFlags(); // the examination list has now been brought to confession
     void syncReminder(); // push the next reminder out from today
     setStage("done");
@@ -46,7 +48,7 @@ export default function RecordConfessionFlow() {
       pickedDate.getDate(),
       12, 0, 0,
     );
-    record({ note, date: d.toISOString() });
+    record({ note, date: d.toISOString(), penance });
     void syncReminder(); // recompute from the newest confession
     setStage("done");
   };
@@ -65,6 +67,12 @@ export default function RecordConfessionFlow() {
             ? `Recorded for ${pickedDate ? formatDate(pickedDate.toISOString()) : "the chosen day"}.`
             : "Give thanks for the mercy you have received. Pray your penance, and resolve to begin again."}
         </p>
+        {penance.trim() && (
+          <div className="mx-auto mt-5 max-w-[22rem] rounded-2xl border border-border bg-surface-2 px-5 py-4 text-left">
+            <p className="text-[0.72rem] uppercase tracking-[0.12em] text-gold-muted">Your penance</p>
+            <p className="mt-1.5 text-[0.95rem] leading-relaxed text-text-soft">{penance.trim()}</p>
+          </div>
+        )}
         <div className="mt-7">
           <button
             type="button"
@@ -104,6 +112,15 @@ export default function RecordConfessionFlow() {
               ?
             </p>
             <label className="mt-4 block text-[0.78rem] uppercase tracking-[0.12em] text-text-dim">
+              Penance <span className="normal-case tracking-normal">(optional)</span>
+            </label>
+            <input
+              value={penance}
+              onChange={(e) => setPenance(e.target.value)}
+              placeholder="e.g. three Hail Marys"
+              className="mt-2 w-full rounded-xl border border-border bg-[var(--bg)] px-4 py-3 text-base text-text placeholder:text-text-dim/70 focus:border-gold-muted focus:outline-none"
+            />
+            <label className="mt-4 block text-[0.78rem] uppercase tracking-[0.12em] text-text-dim">
               Note <span className="normal-case tracking-normal">(optional)</span>
             </label>
             <textarea
@@ -136,14 +153,23 @@ export default function RecordConfessionFlow() {
           This logs today as your last confession.
         </p>
         <label className="mt-4 block text-[0.78rem] uppercase tracking-[0.12em] text-text-dim">
+          Penance <span className="normal-case tracking-normal">(optional)</span>
+        </label>
+        <input
+          value={penance}
+          onChange={(e) => setPenance(e.target.value)}
+          placeholder="e.g. three Hail Marys"
+          className="mt-2 w-full rounded-xl border border-border bg-[var(--bg)] px-4 py-3 text-base text-text placeholder:text-text-dim/70 focus:border-gold-muted focus:outline-none"
+        />
+        <label className="mt-4 block text-[0.78rem] uppercase tracking-[0.12em] text-text-dim">
           Note <span className="normal-case tracking-normal">(optional)</span>
         </label>
         <textarea
           value={note}
           onChange={(e) => setNote(e.target.value)}
           rows={3}
-          placeholder="Penance given, what I'm resolving to work on…"
-          className="mt-2 w-full resize-none rounded-xl border border-border bg-[var(--bg)] px-4 py-3 text-[0.92rem] text-text placeholder:text-text-dim/70 focus:border-gold-muted focus:outline-none"
+          placeholder="What I'm resolving to work on…"
+          className="mt-2 w-full resize-none rounded-xl border border-border bg-[var(--bg)] px-4 py-3 text-base text-text placeholder:text-text-dim/70 focus:border-gold-muted focus:outline-none"
         />
         <div className="mt-5 flex gap-2.5">
           <button

@@ -9,7 +9,7 @@ import ProfileMenu from "@/components/ProfileMenu";
 import TodayStrip from "@/components/TodayStrip";
 
 export default function HomePage() {
-  const { confessions, lastDate, remove } = useConfessions();
+  const { confessions, lastDate, remove, setPenanceDone } = useConfessions();
   const elapsed = lastDate ? elapsedSince(lastDate) : null;
 
   const handleDelete = (id: string) => {
@@ -58,7 +58,11 @@ export default function HomePage() {
 
       <TodayStrip />
 
-      <ConfessionLog items={confessions} onDelete={handleDelete} />
+      <ConfessionLog
+        items={confessions}
+        onDelete={handleDelete}
+        onPenanceToggle={setPenanceDone}
+      />
 
       <footer className="mt-12 mb-2 text-center">
         <p className="font-serif text-[1.15rem] italic leading-relaxed text-gold-muted">

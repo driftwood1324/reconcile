@@ -8,9 +8,11 @@ import { formatDate, relativeLabel } from "@/lib/time";
 export default function ConfessionLog({
   items,
   onDelete,
+  onPenanceToggle,
 }: {
   items: Confession[];
   onDelete?: (id: string) => void;
+  onPenanceToggle?: (id: string, done: boolean) => void;
 }) {
   const [armed, setArmed] = useState<string | null>(null);
 
@@ -58,6 +60,38 @@ export default function ConfessionLog({
                 <p className="mt-1.5 line-clamp-2 text-[0.88rem] leading-relaxed text-text-soft">
                   {c.note}
                 </p>
+              )}
+              {c.penance && (
+                <button
+                  type="button"
+                  onClick={() => onPenanceToggle?.(c.id, !c.penanceDone)}
+                  disabled={!onPenanceToggle}
+                  aria-pressed={!!c.penanceDone}
+                  className="mt-2 flex w-full items-start gap-2.5 text-left"
+                >
+                  <span
+                    className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-[5px]"
+                    style={{
+                      backgroundColor: c.penanceDone ? "var(--gold)" : "transparent",
+                      boxShadow: `inset 0 0 0 1.5px ${c.penanceDone ? "var(--gold)" : "var(--border-strong)"}`,
+                    }}
+                  >
+                    {c.penanceDone && (
+                      <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="#1a1305" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M20 6 9 17l-5-5" />
+                      </svg>
+                    )}
+                  </span>
+                  <span
+                    className="text-[0.84rem] leading-relaxed"
+                    style={{
+                      color: c.penanceDone ? "var(--text-dim)" : "var(--text-soft)",
+                      textDecoration: c.penanceDone ? "line-through" : "none",
+                    }}
+                  >
+                    Penance: {c.penance}
+                  </span>
+                </button>
               )}
               {isArmed && onDelete && (
                 <div className="fade-in mt-3 flex items-center justify-between gap-3 border-t border-border pt-3">

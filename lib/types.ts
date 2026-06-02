@@ -2,8 +2,12 @@ export interface Confession {
   id: string;
   /** ISO 8601 timestamp of when the confession was made. */
   date: string;
-  /** Optional private note ("what I'm working on", penance, etc.). */
+  /** Optional private note ("what I'm working on", a resolution, etc.). */
   note?: string;
+  /** Optional penance given by the priest, to carry out afterward. */
+  penance?: string;
+  /** Whether that penance has been completed. */
+  penanceDone?: boolean;
 }
 
 export interface Note {

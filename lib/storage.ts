@@ -78,12 +78,14 @@ export function getConfessions(): Confession[] {
   return value;
 }
 
-export function addConfession(input: { date: string; note?: string }): Confession {
+export function addConfession(input: { date: string; note?: string; penance?: string }): Confession {
   const note = input.note?.trim();
+  const penance = input.penance?.trim();
   const entry: Confession = {
     id: makeId(),
     date: input.date,
     ...(note ? { note } : {}),
+    ...(penance ? { penance, penanceDone: false } : {}),
   };
   const next = [entry, ...getConfessions()];
   write(KEYS.confessions, next);
@@ -92,6 +94,16 @@ export function addConfession(input: { date: string; note?: string }): Confessio
 
 export function deleteConfession(id: string): void {
   write(KEYS.confessions, getConfessions().filter((c) => c.id !== id));
+}
+
+export function updateConfession(
+  id: string,
+  patch: Partial<Pick<Confession, "penanceDone">>,
+): void {
+  write(
+    KEYS.confessions,
+    getConfessions().map((c) => (c.id === id ? { ...c, ...patch } : c)),
+  );
 }
 
 // ── Notes ────────────────────────────────────────────────────────────────────
