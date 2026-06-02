@@ -41,6 +41,10 @@ export interface Settings {
   customUnit?: CustomUnit;
   /** Whether local-notification reminders are scheduled (requires permission). */
   remindersEnabled: boolean;
+  /** Nightly Daily-Examen reminder. */
+  examenReminderEnabled: boolean;
+  /** Hour of day (0–23, local) for the examen reminder. */
+  examenHour: number;
   /** Remembered choice for the "By state of life" examination tab. */
   stateOfLife?: StateOfLife;
 }
@@ -50,5 +54,7 @@ export const DEFAULT_SETTINGS: Settings = {
   customCount: 2,
   customUnit: "weeks",
   remindersEnabled: false,
+  examenReminderEnabled: false,
+  examenHour: 21,
   stateOfLife: "single_man",
 };

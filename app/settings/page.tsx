@@ -9,6 +9,7 @@ import {
   reminderPermission,
   requestReminderPermission,
   syncReminder,
+  syncExamenReminder,
   type PermState,
 } from "@/lib/reminders";
 import ConfirmAction from "@/components/ConfirmAction";
@@ -75,6 +76,37 @@ export default function SettingsPage() {
       await syncReminder();
     }
     setBusy(false);
+  };
+
+  // ── Nightly examen reminder ─────────────────────────────────────────────────
+  const examenOn = settings.examenReminderEnabled;
+
+  const changeExamenHour = (hour: number) => {
+    update({ examenHour: hour });
+    if (examenOn) void syncExamenReminder();
+  };
+
+  const toggleExamen = async () => {
+    if (busy) return;
+    if (examenOn) {
+      update({ examenReminderEnabled: false });
+      await syncExamenReminder();
+      return;
+    }
+    setBusy(true);
+    const result = await requestReminderPermission();
+    setPerm(result);
+    if (result === "granted") {
+      update({ examenReminderEnabled: true });
+      await syncExamenReminder();
+    }
+    setBusy(false);
+  };
+
+  const formatHour = (h: number) => {
+    const period = h < 12 ? "AM" : "PM";
+    const hour12 = h % 12 === 0 ? 12 : h % 12;
+    return `${hour12}:00 ${period}`;
   };
 
   // ── Privacy lock ────────────────────────────────────────────────────────────
@@ -243,6 +275,53 @@ export default function SettingsPage() {
 
         <p className="mt-3 text-[0.82rem] leading-relaxed text-text-dim">
           {reminderHint}
+        </p>
+      </section>
+
+      {/* Nightly examen */}
+      <section className="mt-10">
+        <h2 className="text-[0.78rem] font-semibold uppercase tracking-[0.14em] text-text-dim">
+          Daily Examen
+        </h2>
+        <div className="mt-4 flex items-center justify-between rounded-2xl border border-border bg-surface px-5 py-4">
+          <span className="text-[0.92rem] text-text-soft">Nightly reminder</span>
+          <button
+            type="button"
+            role="switch"
+            aria-checked={examenOn}
+            aria-label="Enable the nightly examen reminder"
+            disabled={busy}
+            onClick={toggleExamen}
+            className="relative h-7 w-12 rounded-full transition-colors disabled:opacity-60"
+            style={{ backgroundColor: examenOn ? "var(--gold)" : "var(--border)" }}
+          >
+            <span
+              className="absolute top-1 h-5 w-5 rounded-full bg-[var(--bg)] transition-all"
+              style={{ left: examenOn ? "1.5rem" : "0.25rem" }}
+            />
+          </button>
+        </div>
+
+        {examenOn && (
+          <div className="fade-in mt-3 flex items-center justify-between rounded-2xl border border-border bg-surface px-5 py-4">
+            <span className="text-[0.92rem] text-text-soft">Remind me at</span>
+            <select
+              value={settings.examenHour ?? 21}
+              onChange={(e) => changeExamenHour(Number(e.target.value))}
+              aria-label="Examen reminder time"
+              className="rounded-xl border border-border bg-[var(--bg)] px-3 py-2 text-base text-text focus:border-gold-muted focus:outline-none"
+            >
+              {[18, 19, 20, 21, 22, 23].map((h) => (
+                <option key={h} value={h}>
+                  {formatHour(h)}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+
+        <p className="mt-3 text-[0.82rem] leading-relaxed text-text-dim">
+          A short, prayerful review of the day. Open it any time from Resources.
         </p>
       </section>
 

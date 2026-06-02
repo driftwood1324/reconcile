@@ -223,6 +223,21 @@ export default function ResourcesPage() {
       <p className="mt-1.5 text-[0.92rem] text-text-dim">Prayers & devotions</p>
 
       <div className="mt-6 flex flex-col gap-3">
+        <Link
+          href="/examen"
+          className="flex items-center gap-4 rounded-2xl border border-border bg-surface px-5 py-5 text-left transition-colors hover:border-gold-muted"
+        >
+          <Cross size={24} className="shrink-0 text-gold-muted" />
+          <span className="min-w-0 flex-1">
+            <span className="block font-serif text-[1.1rem] text-text">The Daily Examen</span>
+            <span className="mt-0.5 block text-[0.85rem] leading-snug text-text-dim">
+              A five-minute prayerful review of your day.
+            </span>
+          </span>
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="var(--gold-muted)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">
+            <path d="m9 18 6-6-6-6" />
+          </svg>
+        </Link>
         {GUIDES.map((g) => (
           <button
             key={g.id}

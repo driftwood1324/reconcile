@@ -10,8 +10,9 @@
 import { getConfessions, getSettings } from "./storage";
 import type { CustomUnit, Settings } from "./types";
 
-// One reminder at a time — reschedule overwrites this fixed id.
-const REMINDER_ID = 1;
+// Fixed notification ids — rescheduling overwrites in place.
+const REMINDER_ID = 1; // confession cadence
+const EXAMEN_ID = 2; // nightly examen
 
 export type PermState = "granted" | "denied" | "prompt" | "unsupported";
 
@@ -129,5 +130,47 @@ export async function syncReminder(): Promise<void> {
     });
   } catch {
     /* scheduling unavailable (e.g. web tab closed) — non-fatal */
+  }
+}
+
+/**
+ * Reconcile the nightly Daily-Examen reminder with settings. A daily repeating
+ * notification at the chosen local hour; cancelled when disabled or unpermitted.
+ */
+export async function syncExamenReminder(): Promise<void> {
+  const ln = await plugin();
+  if (!ln) return;
+
+  try {
+    await ln.cancel({ notifications: [{ id: EXAMEN_ID }] });
+  } catch {
+    /* nothing scheduled */
+  }
+
+  const settings = getSettings();
+  if (!settings.examenReminderEnabled) return;
+
+  let granted = false;
+  try {
+    granted = (await ln.checkPermissions()).display === "granted";
+  } catch {
+    granted = false;
+  }
+  if (!granted) return;
+
+  const hour = Math.max(0, Math.min(23, settings.examenHour ?? 21));
+  try {
+    await ln.schedule({
+      notifications: [
+        {
+          id: EXAMEN_ID,
+          title: "The day is ending",
+          body: "Take a few quiet minutes for the Daily Examen.",
+          schedule: { on: { hour, minute: 0 }, repeats: true, allowWhileIdle: true },
+        },
+      ],
+    });
+  } catch {
+    /* daily scheduling unavailable on this platform — non-fatal */
   }
 }
