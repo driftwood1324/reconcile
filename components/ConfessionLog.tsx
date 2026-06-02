@@ -3,6 +3,7 @@
 import { useState } from "react";
 import type { Confession } from "@/lib/types";
 import { formatDate, relativeLabel } from "@/lib/time";
+import { useLang } from "@/lib/i18n";
 
 /** Recent-confessions list: date, relative tag, a note preview, and delete. */
 export default function ConfessionLog({
@@ -15,13 +16,14 @@ export default function ConfessionLog({
   onPenanceToggle?: (id: string, done: boolean) => void;
 }) {
   const [armed, setArmed] = useState<string | null>(null);
+  const { t } = useLang();
 
   if (items.length === 0) return null;
 
   return (
     <section className="mt-10">
       <h2 className="mb-3 text-[0.78rem] font-semibold uppercase tracking-[0.14em] text-text-dim">
-        History
+        {t("home.history")}
       </h2>
       <ul className="flex flex-col gap-2.5">
         {items.map((c) => {

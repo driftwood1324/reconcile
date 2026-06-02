@@ -2,12 +2,21 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useLang, type UIKey } from "@/lib/i18n";
 
 interface NavItem {
   href: string;
   label: string;
   icon: (active: boolean) => React.ReactNode;
 }
+
+const LABEL_KEY: Record<string, UIKey> = {
+  "/": "nav.home",
+  "/examine": "nav.examine",
+  "/contrition": "nav.contrition",
+  "/resources": "nav.resources",
+  "/notes": "nav.notes",
+};
 
 const stroke = (active: boolean) => (active ? "var(--gold)" : "var(--text-dim)");
 
@@ -71,6 +80,7 @@ const NAV: NavItem[] = [
 
 export default function BottomNav() {
   const pathname = usePathname();
+  const { t } = useLang();
 
   const isActive = (href: string) =>
     href === "/" ? pathname === "/" : pathname.startsWith(href);
@@ -98,7 +108,7 @@ export default function BottomNav() {
                 className="text-[11px] tracking-wide"
                 style={{ color: active ? "var(--gold)" : "var(--text-dim)" }}
               >
-                {item.label}
+                {t(LABEL_KEY[item.href])}
               </span>
             </Link>
           );

@@ -33,6 +33,9 @@ export type CustomUnit = "days" | "weeks" | "months";
 /** App-wide text scale for readability. */
 export type TextSize = "normal" | "large";
 
+/** Interface + content language. */
+export type Lang = "en" | "es";
+
 export type StateOfLife =
   | "single_man"
   | "married_man"
@@ -54,6 +57,8 @@ export interface Settings {
   examenHour: number;
   /** App-wide text scale. */
   textSize: TextSize;
+  /** Interface + content language. */
+  language: Lang;
   /** Remembered choice for the "By state of life" examination tab. */
   stateOfLife?: StateOfLife;
 }
@@ -66,5 +71,6 @@ export const DEFAULT_SETTINGS: Settings = {
   examenReminderEnabled: false,
   examenHour: 21,
   textSize: "normal",
+  language: "en",
   stateOfLife: "single_man",
 };

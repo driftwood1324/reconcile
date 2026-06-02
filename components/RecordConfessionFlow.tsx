@@ -5,6 +5,7 @@ import { useConfessions } from "@/lib/useConfessions";
 import { syncReminder } from "@/lib/reminders";
 import { clearFlags } from "@/lib/storage";
 import { formatDate } from "@/lib/time";
+import { useLang } from "@/lib/i18n";
 import Calendar from "./Calendar";
 import Cross from "./Cross";
 
@@ -18,6 +19,7 @@ type Mode = "today" | "past";
  */
 export default function RecordConfessionFlow() {
   const { record } = useConfessions();
+  const { t } = useLang();
   const [stage, setStage] = useState<Stage>("idle");
   const [mode, setMode] = useState<Mode>("today");
   const [note, setNote] = useState("");
@@ -204,7 +206,7 @@ export default function RecordConfessionFlow() {
         className="w-full rounded-3xl px-6 py-5 text-center text-[1.02rem] font-medium"
         style={{ backgroundColor: "var(--gold)", color: "#1a1305" }}
       >
-        I just went to confession
+        {t("record.cta")}
       </button>
       <button
         type="button"
@@ -214,7 +216,7 @@ export default function RecordConfessionFlow() {
         }}
         className="mt-3 w-full py-2 text-center text-[0.9rem] text-text-dim transition-colors hover:text-gold"
       >
-        Log a past confession
+        {t("record.logPast")}
       </button>
     </div>
   );

@@ -183,8 +183,26 @@ export default function SettingsPage() {
     <div className="fade-in">
       <h1 className="font-serif text-3xl text-text">Settings</h1>
 
-      {/* Reminder interval */}
+      {/* Language */}
       <section className="mt-8">
+        <h2 className="text-[0.78rem] font-semibold uppercase tracking-[0.14em] text-text-dim">
+          Idioma · Language
+        </h2>
+        <div className="mt-4">
+          <PillToggle
+            ariaLabel="Language"
+            value={settings.language ?? "en"}
+            onChange={(value) => update({ language: value })}
+            options={[
+              { value: "en", label: "English" },
+              { value: "es", label: "Español" },
+            ]}
+          />
+        </div>
+      </section>
+
+      {/* Reminder interval */}
+      <section className="mt-10">
         <h2 className="text-[0.78rem] font-semibold uppercase tracking-[0.14em] text-text-dim">
           Reminder interval
         </h2>

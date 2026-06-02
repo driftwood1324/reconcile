@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import PillToggle from "@/components/PillToggle";
 import Cross from "@/components/Cross";
+import { useLang, pick } from "@/lib/i18n";
 import {
   CONTRITION_NOTE,
   CONTRITION_VERSIONS,
@@ -12,21 +13,26 @@ import {
 type VersionId = ContritionVersion["id"];
 
 export default function ContritionPage() {
+  const { lang } = useLang();
   const [active, setActive] = useState<VersionId>("traditional");
 
+  const versions = pick(CONTRITION_VERSIONS, lang);
+  const note = pick(CONTRITION_NOTE, lang);
   const version = useMemo(
-    () => CONTRITION_VERSIONS.find((v) => v.id === active) ?? CONTRITION_VERSIONS[0],
-    [active],
+    () => versions.find((v) => v.id === active) ?? versions[0],
+    [active, versions],
   );
 
   return (
     <div className="fade-in">
-      <h1 className="font-serif text-3xl text-text">Act of Contrition</h1>
+      <h1 className="font-serif text-3xl text-text">
+        {lang === "es" ? "Acto de Contrición" : "Act of Contrition"}
+      </h1>
 
       <div className="mt-6">
         <PillToggle
           ariaLabel="Choose a version"
-          options={CONTRITION_VERSIONS.map((v) => ({ value: v.id, label: v.label }))}
+          options={versions.map((v) => ({ value: v.id, label: v.label }))}
           value={active}
           onChange={setActive}
         />
@@ -45,7 +51,7 @@ export default function ContritionPage() {
             <p
               key={i}
               className="text-center font-serif text-[1.35rem] leading-relaxed text-text"
-              style={line.trim() === "Amen." ? { color: "var(--gold)" } : undefined}
+              style={/^Am[eé]n\.$/.test(line.trim()) ? { color: "var(--gold)" } : undefined}
             >
               {line}
             </p>
@@ -54,9 +60,9 @@ export default function ContritionPage() {
       </article>
 
       <section className="mt-8 rounded-2xl border border-border bg-surface-2 px-5 py-5">
-        <h2 className="font-serif text-lg text-gold">{CONTRITION_NOTE.heading}</h2>
+        <h2 className="font-serif text-lg text-gold">{note.heading}</h2>
         <div className="mt-3 flex flex-col gap-3">
-          {CONTRITION_NOTE.body.map((p, i) => (
+          {note.body.map((p, i) => (
             <p key={i} className="text-[0.9rem] leading-relaxed text-text-soft">
               {p}
             </p>

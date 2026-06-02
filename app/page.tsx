@@ -3,14 +3,33 @@
 import { useConfessions } from "@/lib/useConfessions";
 import { elapsedSince } from "@/lib/time";
 import { syncReminder } from "@/lib/reminders";
+import { useLang } from "@/lib/i18n";
 import RecordConfessionFlow from "@/components/RecordConfessionFlow";
 import ConfessionLog from "@/components/ConfessionLog";
 import ProfileMenu from "@/components/ProfileMenu";
 import TodayStrip from "@/components/TodayStrip";
 
+// Spanish renderings for the elapsed-time headline (English comes from lib/time).
+const ES_VALUE: Record<string, string> = { Today: "Hoy", Yesterday: "Ayer" };
+const ES_UNIT: Record<string, string> = {
+  days: "días",
+  week: "semana",
+  weeks: "semanas",
+  month: "mes",
+  months: "meses",
+  year: "año",
+  years: "años",
+};
+
 export default function HomePage() {
   const { confessions, lastDate, remove, setPenanceDone } = useConfessions();
+  const { t, lang } = useLang();
   const elapsed = lastDate ? elapsedSince(lastDate) : null;
+
+  const headlineValue =
+    elapsed && lang === "es" ? (ES_VALUE[elapsed.value] ?? elapsed.value) : elapsed?.value;
+  const headlineUnit =
+    elapsed?.unit && lang === "es" ? (ES_UNIT[elapsed.unit] ?? elapsed.unit) : elapsed?.unit;
 
   const handleDelete = (id: string) => {
     remove(id);
@@ -25,28 +44,27 @@ export default function HomePage() {
         </div>
 
         <p className="text-[0.78rem] font-semibold uppercase tracking-[0.16em] text-text-dim">
-          Since last confession
+          {t("home.sinceLast")}
         </p>
 
         {elapsed ? (
           <div className="mt-5">
             <span className="block font-serif text-7xl leading-none text-gold">
-              {elapsed.value}
+              {headlineValue}
             </span>
-            {elapsed.unit && (
+            {headlineUnit && (
               <span className="mt-2 block font-serif text-3xl text-gold-muted">
-                {elapsed.unit}
+                {headlineUnit}
               </span>
             )}
           </div>
         ) : (
           <div className="mt-5">
             <span className="block font-serif text-4xl leading-tight text-gold">
-              Not yet recorded
+              {t("home.notRecorded")}
             </span>
             <p className="mt-3 max-w-[20rem] text-[0.95rem] leading-relaxed text-text-soft">
-              Begin by recording your last confession. From there, Reconcile keeps
-              the count for you.
+              {t("home.notRecordedBody")}
             </p>
           </div>
         )}
