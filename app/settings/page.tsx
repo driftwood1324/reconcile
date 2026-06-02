@@ -16,6 +16,7 @@ import ConfirmAction from "@/components/ConfirmAction";
 import PillToggle from "@/components/PillToggle";
 import PinPad from "@/components/PinPad";
 import Cross from "@/components/Cross";
+import BackupPanel from "@/components/BackupPanel";
 import {
   disableLock,
   isLockEnabled,
@@ -404,7 +405,16 @@ export default function SettingsPage() {
           </Link>
         </p>
 
-        <div className="mt-5">
+        <h3 className="mt-6 text-[0.82rem] font-semibold uppercase tracking-[0.12em] text-text-dim">
+          Back up &amp; restore
+        </h3>
+        <p className="mt-2 text-[0.82rem] leading-relaxed text-text-dim">
+          Save your data to a file you control, or move it to a new device. No
+          server is involved — encrypt it with a passphrase to keep it private.
+        </p>
+        <BackupPanel />
+
+        <div className="mt-6">
           <ConfirmAction
             idleLabel="Clear all data"
             confirmLabel="Tap again to erase everything"

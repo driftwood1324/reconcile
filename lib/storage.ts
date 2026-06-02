@@ -226,6 +226,35 @@ export function clearAll(): void {
   window.dispatchEvent(new CustomEvent(CHANGE_EVENT, { detail: { key: "*" } }));
 }
 
+// ── Backup snapshot ──────────────────────────────────────────────────────────
+
+export interface Snapshot {
+  confessions: Confession[];
+  notes: Note[];
+  settings: Settings;
+  flags: FlaggedItem[];
+}
+
+/** Everything the user owns, for export. */
+export function exportSnapshot(): Snapshot {
+  return {
+    confessions: getConfessions(),
+    notes: getNotes(),
+    settings: getSettings(),
+    flags: getFlags(),
+  };
+}
+
+/** Replace all stored data with a restored snapshot, then notify the app. */
+export function importSnapshot(snap: Partial<Snapshot>): void {
+  if (!isBrowser()) return;
+  if (snap.confessions) window.localStorage.setItem(KEYS.confessions, JSON.stringify(snap.confessions));
+  if (snap.notes) window.localStorage.setItem(KEYS.notes, JSON.stringify(snap.notes));
+  if (snap.settings) window.localStorage.setItem(KEYS.settings, JSON.stringify(snap.settings));
+  if (snap.flags) window.localStorage.setItem(KEYS.flags, JSON.stringify(snap.flags));
+  window.dispatchEvent(new CustomEvent(CHANGE_EVENT, { detail: { key: "*" } }));
+}
+
 function makeId(): string {
   if (isBrowser() && "randomUUID" in crypto) return crypto.randomUUID();
   // Fallback that does not rely on Math.random being available at module load.
