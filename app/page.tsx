@@ -6,6 +6,7 @@ import { syncReminder } from "@/lib/reminders";
 import RecordConfessionFlow from "@/components/RecordConfessionFlow";
 import ConfessionLog from "@/components/ConfessionLog";
 import ProfileMenu from "@/components/ProfileMenu";
+import TodayStrip from "@/components/TodayStrip";
 
 export default function HomePage() {
   const { confessions, lastDate, remove } = useConfessions();
@@ -54,6 +55,8 @@ export default function HomePage() {
       <div className="mt-9">
         <RecordConfessionFlow />
       </div>
+
+      <TodayStrip />
 
       <ConfessionLog items={confessions} onDelete={handleDelete} />
 
