@@ -1,20 +1,23 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, Lora } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 import BottomNav from "@/components/BottomNav";
+import AppBootstrap from "@/components/AppBootstrap";
 import LockGate from "@/components/LockGate";
 import TextScale from "@/components/TextScale";
 
-const inter = Inter({
+const inter = localFont({
+  src: "./fonts/inter-latin-variable.woff2",
   variable: "--font-inter",
-  subsets: ["latin"],
   display: "swap",
+  weight: "100 900",
 });
 
-const lora = Lora({
+const lora = localFont({
+  src: "./fonts/lora-latin-variable.woff2",
   variable: "--font-lora",
-  subsets: ["latin"],
   display: "swap",
+  weight: "400 700",
 });
 
 export const metadata: Metadata = {
@@ -43,6 +46,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${inter.variable} ${lora.variable} antialiased`}>
       <body>
+        <AppBootstrap />
         <TextScale />
         <LockGate>
           <div className="app-shell">

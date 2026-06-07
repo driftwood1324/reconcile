@@ -61,6 +61,16 @@ body {
   overscroll-behavior-y: none;
 }
 
+/* Applied immediately when the native app backgrounds, so iOS app switcher
+   snapshots show a blank private screen instead of confession data. */
+.privacy-shield body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 2147483647;
+  background: var(--bg);
+}
+
 /* Respect the iPhone notch / home indicator via safe-area insets. */
 .app-shell {
   width: 100%;

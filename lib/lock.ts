@@ -8,6 +8,14 @@
  * launch but stays open while you navigate. On native iOS a biometric (Face ID)
  * unlock can be layered on later via a Capacitor plugin — see Settings.
  */
+import {
+  getRaw,
+  initializePersistentStore,
+  registerPersistentKeys,
+  removeRaw,
+  setRaw,
+} from "./persistentStore";
+
 const KEY = "reconcile.lock";
 const SESSION_KEY = "reconcile.unlocked";
 const EVENT = "reconcile:lock";
@@ -20,10 +28,17 @@ export interface LockConfig {
 
 const isBrowser = () => typeof window !== "undefined";
 
+registerPersistentKeys([KEY]);
+
+export async function initializeLockStorage(): Promise<void> {
+  await initializePersistentStore();
+  notify();
+}
+
 export function getLockConfig(): LockConfig | null {
   if (!isBrowser()) return null;
   try {
-    const raw = window.localStorage.getItem(KEY);
+    const raw = getRaw(KEY);
     if (!raw) return null;
     const c = JSON.parse(raw) as LockConfig;
     return c.enabled && c.hash ? c : null;
@@ -67,7 +82,7 @@ export async function setPin(pin: string): Promise<void> {
   if (!isBrowser()) return;
   const salt = randomSalt();
   const hash = await hashPin(pin, salt);
-  window.localStorage.setItem(KEY, JSON.stringify({ enabled: true, hash, salt }));
+  setRaw(KEY, JSON.stringify({ enabled: true, hash, salt }));
   markUnlocked(); // setting a PIN means you're present now
   notify();
 }
@@ -80,7 +95,7 @@ export async function verifyPin(pin: string): Promise<boolean> {
 
 export function disableLock(): void {
   if (!isBrowser()) return;
-  window.localStorage.removeItem(KEY);
+  removeRaw(KEY);
   notify();
 }
 

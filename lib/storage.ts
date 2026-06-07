@@ -1,5 +1,12 @@
 import type { Confession, FlaggedItem, Note, Settings } from "./types";
 import { DEFAULT_SETTINGS } from "./types";
+import {
+  getRaw,
+  initializePersistentStore,
+  registerPersistentKeys,
+  removeRaw,
+  setRaw,
+} from "./persistentStore";
 
 /**
  * Typed, SSR-safe wrapper over localStorage. All persistence flows through here
@@ -19,11 +26,22 @@ const CHANGE_EVENT = "reconcile:change";
 
 const isBrowser = () => typeof window !== "undefined";
 
+registerPersistentKeys(Object.values(KEYS));
+
+export async function initializeStorage(): Promise<void> {
+  await initializePersistentStore();
+  notifyChange("*");
+}
+
+function notifyChange(key: string): void {
+  if (isBrowser()) window.dispatchEvent(new CustomEvent(CHANGE_EVENT, { detail: { key } }));
+}
+
 function write<T>(key: string, value: T): void {
   if (!isBrowser()) return;
   try {
-    window.localStorage.setItem(key, JSON.stringify(value));
-    window.dispatchEvent(new CustomEvent(CHANGE_EVENT, { detail: { key } }));
+    setRaw(key, JSON.stringify(value));
+    notifyChange(key);
   } catch {
     /* quota or private-mode failures are non-fatal for this app */
   }
@@ -63,7 +81,7 @@ let confessionsCache: { raw: string | null; value: Confession[] } = {
 
 export function getConfessions(): Confession[] {
   if (!isBrowser()) return EMPTY_CONFESSIONS;
-  const raw = window.localStorage.getItem(KEYS.confessions);
+  const raw = getRaw(KEYS.confessions);
   if (raw === confessionsCache.raw) return confessionsCache.value;
 
   let parsed: Confession[] = [];
@@ -116,7 +134,7 @@ let notesCache: { raw: string | null; value: Note[] } = {
 
 export function getNotes(): Note[] {
   if (!isBrowser()) return EMPTY_NOTES;
-  const raw = window.localStorage.getItem(KEYS.notes);
+  const raw = getRaw(KEYS.notes);
   if (raw === notesCache.raw) return notesCache.value;
 
   let parsed: Note[] = [];
@@ -153,7 +171,7 @@ let flagsCache: { raw: string | null; value: FlaggedItem[] } = {
 
 export function getFlags(): FlaggedItem[] {
   if (!isBrowser()) return EMPTY_FLAGS;
-  const raw = window.localStorage.getItem(KEYS.flags);
+  const raw = getRaw(KEYS.flags);
   if (raw === flagsCache.raw) return flagsCache.value;
 
   let value: FlaggedItem[] = [];
@@ -193,7 +211,7 @@ let settingsCache: { raw: string | null; value: Settings } = {
 
 export function getSettings(): Settings {
   if (!isBrowser()) return DEFAULT_SETTINGS;
-  const raw = window.localStorage.getItem(KEYS.settings);
+  const raw = getRaw(KEYS.settings);
   if (raw === settingsCache.raw) return settingsCache.value;
 
   let value = DEFAULT_SETTINGS;
@@ -219,11 +237,11 @@ export function saveSettings(settings: Settings): void {
 
 export function clearAll(): void {
   if (!isBrowser()) return;
-  window.localStorage.removeItem(KEYS.confessions);
-  window.localStorage.removeItem(KEYS.settings);
-  window.localStorage.removeItem(KEYS.notes);
-  window.localStorage.removeItem(KEYS.flags);
-  window.dispatchEvent(new CustomEvent(CHANGE_EVENT, { detail: { key: "*" } }));
+  removeRaw(KEYS.confessions);
+  removeRaw(KEYS.settings);
+  removeRaw(KEYS.notes);
+  removeRaw(KEYS.flags);
+  notifyChange("*");
 }
 
 // ── Backup snapshot ──────────────────────────────────────────────────────────
@@ -248,11 +266,11 @@ export function exportSnapshot(): Snapshot {
 /** Replace all stored data with a restored snapshot, then notify the app. */
 export function importSnapshot(snap: Partial<Snapshot>): void {
   if (!isBrowser()) return;
-  if (snap.confessions) window.localStorage.setItem(KEYS.confessions, JSON.stringify(snap.confessions));
-  if (snap.notes) window.localStorage.setItem(KEYS.notes, JSON.stringify(snap.notes));
-  if (snap.settings) window.localStorage.setItem(KEYS.settings, JSON.stringify(snap.settings));
-  if (snap.flags) window.localStorage.setItem(KEYS.flags, JSON.stringify(snap.flags));
-  window.dispatchEvent(new CustomEvent(CHANGE_EVENT, { detail: { key: "*" } }));
+  if (snap.confessions) setRaw(KEYS.confessions, JSON.stringify(snap.confessions));
+  if (snap.notes) setRaw(KEYS.notes, JSON.stringify(snap.notes));
+  if (snap.settings) setRaw(KEYS.settings, JSON.stringify(snap.settings));
+  if (snap.flags) setRaw(KEYS.flags, JSON.stringify(snap.flags));
+  notifyChange("*");
 }
 
 function makeId(): string {

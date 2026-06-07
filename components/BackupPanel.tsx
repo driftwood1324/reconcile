@@ -2,6 +2,7 @@
 
 import { useRef, useState } from "react";
 import { createBackup, restoreBackup } from "@/lib/backup";
+import { saveBackupFile } from "@/lib/backupExport";
 
 type Mode = "idle" | "export" | "import";
 
@@ -37,15 +38,8 @@ export default function BackupPanel() {
     setOutput(await createBackup(exportPass.trim() || undefined));
   };
 
-  const download = () => {
-    const blob = new Blob([output], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    const stamp = new Date().toISOString().slice(0, 10);
-    a.href = url;
-    a.download = `reconcile-backup-${stamp}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
+  const download = async () => {
+    await saveBackupFile(output);
   };
 
   const copy = async () => {

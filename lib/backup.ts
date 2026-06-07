@@ -74,6 +74,22 @@ export interface RestoreResult {
   needsPassphrase?: boolean;
 }
 
+function isObject(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function isValidSnapshot(value: unknown): value is Partial<Snapshot> {
+  if (!isObject(value)) return false;
+  const hasKnownData =
+    "confessions" in value || "notes" in value || "flags" in value || "settings" in value;
+  if (!hasKnownData) return false;
+  if ("confessions" in value && !Array.isArray(value.confessions)) return false;
+  if ("notes" in value && !Array.isArray(value.notes)) return false;
+  if ("flags" in value && !Array.isArray(value.flags)) return false;
+  if ("settings" in value && !isObject(value.settings)) return false;
+  return true;
+}
+
 /** Restore from a backup string, decrypting if a passphrase is supplied. */
 export async function restoreBackup(
   text: string,
@@ -107,6 +123,10 @@ export async function restoreBackup(
     }
   } else {
     snapshot = env.data as Snapshot;
+  }
+
+  if (!isValidSnapshot(snapshot)) {
+    return { ok: false, error: "This backup file is damaged or not a valid Reconcile backup." };
   }
 
   importSnapshot(snapshot);
